@@ -1,151 +1,132 @@
-var path,mainCyclist;
-var player1,player2,player3;
-var pathImg,mainRacerImg1,mainRacerImg2;
-
-var oppPink1Img,oppPink2Img;
-var oppYellow1Img,oppYellow2Img;
-var oppRed1Img,oppRed2Img;
-var gameOverImg,cycleBell;
-
-var pinkCG, yellowCG,redCG; 
-
-var END =0;
-var PLAY =1;
-var gameState = PLAY;
-
-var distance=0;
-var gameOver, restart;
+var satelitte, satelitteImg;
+var earth, earthImg;
+var groundStationLeft, groundStationRight;
+var groundStationLeftImg, groundStationRightImg;
+var upLinkLeft,upLinkLeftImg;
+var upLinkRight,upLinkRightImg
+var downLinkRight,downLinkRightImg;
+var downLinkLeft,downLinkLeftImg;
 
 function preload(){
-  pathImg = loadImage("images/Road.png");
-  mainRacerImg1 = loadAnimation("images/mainPlayer1.png","images/mainPlayer2.png");
-  mainRacerImg2= loadAnimation("images/mainPlayer3.png");
+satelitteImg=loadImage("satellite.png");
+
+
+earthImg=loadImage("earth2.png")  ;
+
+groundStationLeftImg=loadImage("spacebg1.png");
+
+groundStationRightImg=loadImage("spacebg2.png");  
+
+upLinkLeftImg= loadAnimation("upleft1.png","upleft2.png","upleft3.png","upleft4.png","upleft5.png","upleft6.png","upleft7.png","upleft8.png")  ;
   
-  oppPink1Img = loadAnimation("images/opponent1.png","images/opponent2.png");
-  oppPink2Img = loadAnimation("images/opponent3.png");
   
-  oppYellow1Img = loadAnimation("images/opponent4.png","images/opponent5.png");
-  oppYellow2Img = loadAnimation("images/opponent6.png");
+upLinkRightImg=loadAnimation("upright1.png","upright2.png","upright3.png","upright4.png","upright5.png","upright6.png","upright7.png","upright8.png");  
   
-  oppRed1Img = loadAnimation("images/opponent7.png","images/opponent8.png");
-  oppRed2Img = loadAnimation("images/opponent9.png");
+downLinkLeftImg=loadAnimation("dleft1.png","dleft2.png","dleft3.png","dleft4.png","dleft5.png","dleft6.png","dleft7.png","dleft8.png","dleft9.png") ;
+
+downLinkRightImg=loadAnimation("dright1.png","dright2.png","dright3.png","dright4.png","dright5.png","dright6.png","dright7.png","dright8.png");
+
+
+
+
+
   
-  cycleBell = loadSound("sound/bell.mp3");
-  gameOverImg = loadImage("images/gameOver.png");
+  
 }
 
 function setup(){
-  
-createCanvas(1200,300);
-// Fondo en movimiento
-path=createSprite(100,150);
-path.addImage(pathImg);
-path.velocityX = -5;
+  createCanvas(700,500);
 
-//crear el niño que corre
-mainCyclist  = createSprite(70,150);
-mainCyclist.addAnimation("SahilRunning",mainRacerImg1);
-mainCyclist.scale=0.07;
+satelitte=createSprite(350,70,50,50)  ;
+satelitte.addAnimation(satelitteImg);
+satelitte.scale=0.9;
+
+earth=createSprite(350,820,50,50);
+earth.addAnimation("earth",earthImg);
+earth.scale=0.6;
   
-//establece el colisionador para el mainCyclist
- mainCyclist.setCollider("circle",0,0,25);
-  mainCyclist.debug = false;
+groundStationLeft=createSprite (699,300,25,25); 
+groundStationLeft.addImage(groundStationLeftImg)   
+groundStationLeft.scale=0.2;
   
-gameOver = createSprite(650,150);
-gameOver.addImage(gameOverImg);
-gameOver.scale = 0.8;
-gameOver.visible = false;  
+groundStationRight=createSprite (233,300,25,25); 
+groundStationRight.addImage(groundStationRightImg)   
+groundStationRight.scale=0.2; 
   
-pinkCG = new Group();
-yellowCG = new Group();
-redCG = new Group();
+upLinkLeft=createSpirte(349,140,10,10);  
+upLinkLeft.addImage(upLinkLeftImg)
+upLinkLeft.scale=0.3
+upLinkLeft.visible=false;
+
   
+  
+upLinkRight=createSpirte(698,280,10,10);  
+upLinkRight.addAnimation(upLinkRightImg)
+upLinkRight.scale=0.3
+upLinkRight.visible=false;  
+
+downLinkLeft=createSpirte(698,280,10,10);  
+downLinkLeft.addAnimation(downLinkLeftImg)
+downLinkLeft.scale=0.3
+downLinkLeft.visible=false;    
+  
+downLinkRight=createSpirte(698,280,10,10);  
+downLinkRight.addAnimation(downLinkRightImg)
+downLinkRight.scale=0.3
+downLinkRight.visible=false;    
+   
+  
+
 }
 
-function draw() {
-    background("white");
+function draw(){
+  background("black")
+ if(keydown("L")) {
+ upLinkLeft.visible=true;  
+ }
+  
+  if(keydown("R")) {
+ upLinkRight.visible=true;  
+ } 
+  
+  
+if(keydown("LEFT_ARROW")) {
+ downLinkLeft.visible=true;  
+ } 
+  
+if(keydown("RIGHT_ARROW")) {
+ downLinkRight.visible=true;  
+ }   
+  
+  
+  
   drawSprites();
-  textSize(20);
-  fill(255);
-  text("Distancia: "+ distance,900,30);
-  
-  if(gameState===PLAY){
-    
-   distance = distance + Math.round(getFrameRate()/50);
-   path.velocityX = -(6 + 2*distance/10);
-  
-   mainCyclist.y = World.mouseY;
-  
-   edges= createEdgeSprites();
-   mainCyclist .collide(edges);
-  
-  //código para reiniciar el fondo
-  if(path.x < 0 ){
-    path.x = width/2;
-  }
-  
-    //código para reproducir el sonido de la campana del ciclista
-  if(keyDown("space")) {
-    cycleBell.play();
-  }
-  
-  //crear jugadores oponentes de forma continua
-  var select_oppPlayer = Math.round(random(1,3));
-  
-  if (World.frameCount % 150 == 0) {
-    if (select_oppPlayer == 1) {
-      pinkCyclists();
-    } else if (select_oppPlayer == 2) {
-      yellowCyclists();
-    } else {
-      redCyclists();
-    }
-  }
-  
-   if(pinkCG.isTouching(mainCyclist)){
-     gameState = END;
-     player1.velocityY = 0;
-     player1.addAnimation("opponentPlayer1",oppPink2Img);
-    }
-    
-    if(yellowCG.isTouching(mainCyclist)){
-      gameState = END;
-      player2.velocityY = 0;
-      player2.addAnimation("opponentPlayer2",oppYellow2Img);
-    }
-    
-    if(redCG.isTouching(mainCyclist)){
-      gameState = END;
-      player3.velocityY = 0;
-      player3.addAnimation("opponentPlayer3",oppRed2Img);
-    }
-    
-}else if (gameState === END) {
-    gameOver.visible = true;
+textSize(15);
+fill("white")  
 
-   fill("white"); 
-  text("Presiona la felcha hacia arriba para reiniciar el juego",400,20);
-    //Agrega aquí el código para mostrar la instrucción de reinicio del juego, en forma de texto
-  
-  
-    path.velocityX = 0;
-    mainCyclist.velocityY = 0;
-    mainCyclist.addAnimation("SahilRunning",mainRacerImg2);
-  
-    pinkCG.setVelocityXEach(0);
-    pinkCG.setLifetimeEach(-1);
-  
-    yellowCG.setVelocityXEach(0);
-    yellowCG.setLifetimeEach(-1);
-  
-    redCG.setVelocityXEach(0);
-    redCG.setLifetimeEach(-1);
+text("Presiona las teclas R y L",5,15);
+text("L para solicitar datos del satelitte",5,30);  
+text("Presiona las teclas de flecha izquierda y derecha",5,50)  
+text("R para recibir datos del Satelitte",5,65);  
 
-    
-  //escribe la condición para llamar reset( )
-if(keyDown("UP_ARROW")){
-  reset ();
-  
+textSize(15)
+fill("white");
+
+if(keydown("L")){
+text("solicitando datos al satellite",10,300);
+}
+
+if(keydown("R")){
+text("Solicitando datos al satellite",10,300);
+}  
+
+  if(keydown("LEFT_ARROW")){
+text("Transfiriendo datos a la base izquierda",10,300);
+}  
+ 
+ if(keydown("RIGHT_ARROW")){
+text("Transfiriendo datos a la base derecha",490,300);
+}    
   
   
 }
@@ -153,53 +134,8 @@ if(keyDown("UP_ARROW")){
 
 
 
-}
-  
-  
-  
-  
-  
-}
-
-function pinkCyclists(){
-        player1 =createSprite(1100,Math.round(random(50, 250)));
-        player1.scale =0.06;
-        player1.velocityX = -(6 + 2*distance/10);
-        player1.addAnimation("opponentPlayer1",oppPink1Img);
-        player1.setLifetime=170;
-        pinkCG.add(player1);
-}
-
-function yellowCyclists(){
-        player2 =createSprite(1100,Math.round(random(50, 250)));
-        player2.scale =0.06;
-        player2.velocityX = -(6 + 2*distance/10);
-        player2.addAnimation("opponentPlayer2",oppYellow1Img);
-        player2.setLifetime=170;
-        yellowCG.add(player2);
-}
-
-function redCyclists(){
-        player3 =createSprite(1100,Math.round(random(50, 250)));
-        player3.scale =0.06;
-        player3.velocityX = -(6 + 2*distance/10);
-        player3.addAnimation("opponentPlayer3",oppRed1Img);
-        player3.setLifetime=170;
-        redCG.add(player3);
-}
-
-//crea aquí la función de reinicio
-function reset(){
-gameState=PLAY;
-gameOver.visible=false;
-mainCyclist.addAnimation("SahilRunning",mainRacerImg1);
-pinkCG.destroyEach();
-redCG.destroyEach();
-yellowCG.destroyEach();
-distance=0
-}
-
-
+//Left
+//Right
 
 
 
